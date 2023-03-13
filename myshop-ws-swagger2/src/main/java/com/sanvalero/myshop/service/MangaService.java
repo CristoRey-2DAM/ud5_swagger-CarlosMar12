@@ -1,22 +1,22 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.sanvalero.myshop.service;
 
 
+
 import com.sanvalero.myshop.domain.Manga;
+import java.util.Optional;
 import java.util.Set;
 
 /**
- *
- * @author Carlos
+ * Service de pedidos
+ * @author Santiago Faci
+ * @version Curso 2020-2021
  */
 public interface MangaService {
-     Set<Manga> findAll();
-    Set<Manga> findById(int Id);
-   Manga addManga(Manga manga);
-    Manga modifyManga(int id, Manga newManga);
-    void deleteManga(int id);
+
+    Set<Manga> findAll();
+    Set<Manga> findByCodManga(String codManga);
+    Optional<Manga> findById(long id);
+    Manga addManga(Manga manga);
+    Manga modifyManga(long id, Manga newManga);
+    void deleteManga(long id);
 }

@@ -1,63 +1,52 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.sanvalero.myshop.domain;
 
-
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-
-
-import javax.validation.constraints.NotBlank;
-
 import javax.persistence.*;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
+import java.time.LocalDateTime;
 
 /**
- *
- * @author Carlos
+ * Un producto del catálogo
+ * @author Santiago Faci
+ * @version Curso 2020-2021
  */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity(name = "editoriales")
 public class Editorial {
-    
-    @Schema(description = "Numero identificador de la editorial", example = "666", required = true)
+
+    @Schema(description = "Identificador de la editorial", example = "1", required = true)
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int Id;
-    
-    
+    private long id;
+
     @Schema(description = "Nombre de la editorial", example = "Shueshia", required = true)
     @NotBlank
     @Column
     private String name;
-    
-    
-    @Schema(description = "Numero de empleados", example = "100", defaultValue = "123")
+
+    @Schema(description = "Numero de empleados", example = "20")
+    @Column
+    private int numEmpleados;
+
+    @Schema(description = "Numero de sucursales", example = "12", required = true)
     @NotBlank
     @Column
-    private int NumEmpleados;
-    
-    
-    @Schema(description = "Numero de Sucursales", example = "12", defaultValue = "4")
-    @NotBlank
+    private int numSucursales;
+
+    @Schema(description = "Numero de series publicadas por la editorial", example = "1", defaultValue = "1")
     @Column
-    private int NumSucursales;
-    
-    
-    @Schema(description = "Numero de Series publicadas por la editorial", example = "25", defaultValue = "14")
-    @NotBlank
+    @Min(value = 1)
+    private int numSeries;
+
+    @Schema(description = "Codigo del editor", example = "33AB3")
     @Column
-    private int Num_SeriesPublicadas;
-    
-    @Schema(description = "Codigo del Editor de la Editorial", example = "334456", required = true)
-    @NotBlank
-    @Column
-    private String cod_Editor;
+    private String codEditor;
 }

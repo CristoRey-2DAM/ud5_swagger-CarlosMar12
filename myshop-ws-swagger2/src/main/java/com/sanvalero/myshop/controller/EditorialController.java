@@ -1,17 +1,7 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.sanvalero.myshop.controller;
 
-import static com.sanvalero.myshop.controller.Response.NOT_FOUND;
 import com.sanvalero.myshop.domain.Editorial;
-
 import com.sanvalero.myshop.exception.EditorialNotFoundException;
-
-import com.sanvalero.myshop.service.EditorialService;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -19,31 +9,25 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.*;
 
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import java.util.Set;
+
+import static com.sanvalero.myshop.controller.Response.NOT_FOUND;
+import com.sanvalero.myshop.service.EditorialService;
 
 /**
- *
- * @author Carlos
+ * Controlador para productos
+ * @author Santiago Faci
+ * @version Curso 2020-2021
  */
 @RestController
-@Tag(name = "editoriales", description = "Catálogo de editoriales")
+@Tag(name = "Editoriales", description = "Catálogo de editoriales")
 public class EditorialController {
 
     private final Logger logger = LoggerFactory.getLogger(EditorialController.class);
@@ -53,37 +37,38 @@ public class EditorialController {
 
     @Operation(summary = "Obtiene el listado de editoriales")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Listado de Editoriales",
+            @ApiResponse(responseCode = "200", description = "Listado de productos",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = Editorial.class)))),
     })
     @GetMapping(value = "/editoriales", produces = "application/json")
-    public ResponseEntity<Set<Editorial>> getEditoriles(@RequestParam(value = "name", defaultValue = "") int id) {
+    public ResponseEntity<Set<Editorial>> getEditoriales(@RequestParam(value = "codEditor", defaultValue = "") String codEditor) {
         logger.info("inicio getEditoriales");
-        Set<Editorial> editorials = null;
-        if (id == 0)
-            editorials = editorialService.findAll();
+        Set<Editorial> editoriales = null;
+        if (codEditor.equals(""))
+            editoriales = editorialService.findAll();
         else
-            editorials = editorialService.findById(id);
+            editoriales = editorialService.findByCodEditor(codEditor);
 
         logger.info("fin getEditoriales");
-        return new ResponseEntity<>(editorials, HttpStatus.OK);
+        return new ResponseEntity<>(editoriales, HttpStatus.OK);
     }
 
-    @Operation(summary = "Obtiene una Editorial determinada")
+    @Operation(summary = "Obtiene una editorial determinada")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Existe la Editorial", content = @Content(schema = @Schema(implementation = Editorial.class))),
-            @ApiResponse(responseCode = "404", description = "La Editorial no existe", content = @Content(schema = @Schema(implementation = Response.class)))
+            @ApiResponse(responseCode = "200", description = "Existe la editorial", content = @Content(schema = @Schema(implementation = Editorial.class))),
+            @ApiResponse(responseCode = "404", description = "La editorial no existe", content = @Content(schema = @Schema(implementation = Response.class)))
     })
     @GetMapping(value = "/editoriales/{id}", produces = "application/json")
-    public ResponseEntity<Editorial> getEditorial(@PathVariable int id) {
-        Editorial editorial = (Editorial) editorialService.findById(id); 
+    public ResponseEntity<Editorial> getEditorial(@PathVariable long id) {
+        Editorial product = editorialService.findById(id)
+                .orElseThrow(() -> new EditorialNotFoundException(id));
 
-        return new ResponseEntity<>(editorial, HttpStatus.OK);
+        return new ResponseEntity<>(product, HttpStatus.OK);
     }
 
-    @Operation(summary = "Registra una nueva Editorial")
+    @Operation(summary = "Registra una nueva editorial")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Se registra la Editorial", content = @Content(schema = @Schema(implementation = Editorial.class)))
+            @ApiResponse(responseCode = "201", description = "Se registra la editorial", content = @Content(schema = @Schema(implementation = Editorial.class)))
     })
     @PostMapping(value = "/editoriales", produces = "application/json", consumes = "application/json")
     public ResponseEntity<Editorial> addEditorial(@RequestBody Editorial editorial) {
@@ -91,29 +76,27 @@ public class EditorialController {
         return new ResponseEntity<>(addedEditorial, HttpStatus.CREATED);
     }
 
-    @Operation(summary = "Modifica una Editorial en el catálogo")
+    @Operation(summary = "Modifica una editorial en el catálogo")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Se modifica la Editorial", content = @Content(schema = @Schema(implementation = Editorial.class))),
-            @ApiResponse(responseCode = "404", description = "La Editorial no existe", content = @Content(schema = @Schema(implementation = Response.class)))
+            @ApiResponse(responseCode = "200", description = "Se modifica la editorial", content = @Content(schema = @Schema(implementation = Editorial.class))),
+            @ApiResponse(responseCode = "404", description = "La editorial no existe", content = @Content(schema = @Schema(implementation = Response.class)))
     })
     @PutMapping(value = "/editoriales/{id}", produces = "application/json", consumes = "application/json")
-    public ResponseEntity<Editorial> modifyEditorial(@PathVariable int id, @RequestBody Editorial newEditorial) {
+    public ResponseEntity<Editorial> modifyEditorial(@PathVariable long id, @RequestBody Editorial newEditorial) {
         Editorial editorial = editorialService.modifyEditorial(id, newEditorial);
         return new ResponseEntity<>(editorial, HttpStatus.OK);
     }
 
     @Operation(summary = "Elimina una Editorial")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Se elimina la Editorial", content = @Content(schema = @Schema(implementation = Response.class))),
-            @ApiResponse(responseCode = "404", description = "La Editorial no existe", content = @Content(schema = @Schema(implementation = Response.class)))
+            @ApiResponse(responseCode = "200", description = "Se elimina la editorial", content = @Content(schema = @Schema(implementation = Response.class))),
+            @ApiResponse(responseCode = "404", description = "La editorial no existe", content = @Content(schema = @Schema(implementation = Response.class)))
     })
     @DeleteMapping(value = "/editoriales/{id}", produces = "application/json")
-    public ResponseEntity<Response> deleteEditorial(@PathVariable int id) {
+    public ResponseEntity<Response> deleteEditorial(@PathVariable long id) {
         editorialService.deleteEditorial(id);
         return new ResponseEntity<>(Response.noErrorResponse(), HttpStatus.OK);
     }
-
-   
 
     @ExceptionHandler(EditorialNotFoundException.class)
     @ResponseBody
